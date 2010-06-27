@@ -45,6 +45,11 @@
 }
 
 /*
+ * Constructor
+ */
+-(id)initWithFrame:(CGRect)frame style:(UITableViewStyle)style;
+
+/*
  * Set the delegate
  */
 -(void)setEditableStringTableDelegate:(id <EditableStringTableDelegate>)delegateArg;
