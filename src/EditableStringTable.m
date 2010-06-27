@@ -118,27 +118,33 @@
 
 -(void)keyboardDidShow:(NSNotification*)notification
 {
-	NSIndexPath		*indexPath = [self indexPathForText:fieldBeingEdited];
-	CGRect			cellRect = [self rectForRowAtIndexPath:indexPath];
+	if ( self.editing )
+	{	
+		NSIndexPath		*indexPath = [self indexPathForText:fieldBeingEdited];
+		CGRect			cellRect = [self rectForRowAtIndexPath:indexPath];
 
-	CGRect			keyboardRect;
-    [[notification.userInfo valueForKey:UIKeyboardFrameEndUserInfoKey] getValue:&keyboardRect];
-	keyboardRect = [self convertRect:keyboardRect fromView:nil];
-	
-	CGRect			frame = self.frame;
-	saveFrame = frame;
-	
-	frame.size.height = keyboardRect.origin.y - frame.origin.y;
-	self.frame = frame;
-	
-	[self scrollRectToVisible:cellRect animated:YES];
+		CGRect			keyboardRect;
+		[[notification.userInfo valueForKey:UIKeyboardFrameEndUserInfoKey] getValue:&keyboardRect];
+		keyboardRect = [self convertRect:keyboardRect fromView:nil];
+		
+		CGRect			frame = self.frame;
+		saveFrame = frame;
+		
+		frame.size.height = keyboardRect.origin.y - frame.origin.y;
+		self.frame = frame;
+		
+		[self scrollRectToVisible:cellRect animated:YES];
+	}
 }
 
 -(void)keyboardWillHide
 {
-	[UIView beginAnimations:nil context:nil];
-	self.frame = saveFrame;
-	[UIView commitAnimations];
+	if ( self.editing )
+	{	
+		[UIView beginAnimations:nil context:nil];
+		self.frame = saveFrame;
+		[UIView commitAnimations];
+	}
 }
 
 -(void)setFont:(UIFont*)fontArg
