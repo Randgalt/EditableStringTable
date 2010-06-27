@@ -178,7 +178,10 @@
 {
 	[cells removeObjectAtIndex:indexPath.row];
 	[self reloadData];
-	[tableDelegate table:self rowDeleted:indexPath.row];
+	if ( [tableDelegate respondsToSelector: @selector(table:rowDeleted:)] ) 
+	{
+		[tableDelegate table:self rowDeleted:indexPath.row];
+	}
 }
 
 -(BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
@@ -189,7 +192,10 @@
 -(void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
 {
 	[cells exchangeObjectAtIndex:toIndexPath.row withObjectAtIndex:fromIndexPath.row];
-	[tableDelegate table:self rowMovedFrom:fromIndexPath.row to:toIndexPath.row];
+	if ( [tableDelegate respondsToSelector: @selector(table:rowMovedFrom:to:)] ) 
+	{
+		[tableDelegate table:self rowMovedFrom:fromIndexPath.row to:toIndexPath.row];
+	}
 }
 
 -(void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -199,7 +205,11 @@
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	[self reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationNone];	 
+	[self reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationNone];
+	if ( [tableDelegate respondsToSelector: @selector(table:rowWasSelected:)] ) 
+	{
+		[tableDelegate table:self rowWasSelected:indexPath.row];
+	}
 }
 
 -(UITableViewCell*)tableView:(UITableView *)tableViewArg cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -271,14 +281,20 @@
 {	
 	[self releaseEditingField];
 	[cells replaceObjectAtIndex:[self indexPathForText:textField].row withObject:textField.text];
-	[tableDelegate table:self rowChanged:[self indexForText:textField]];
+	if ( [tableDelegate respondsToSelector: @selector(table:rowChanged:)] ) 
+	{
+		[tableDelegate table:self rowChanged:[self indexForText:textField]];
+	}
 }
 
 -(void)addItem:(NSString*)value
 {
 	[cells addObject:value];
 	[self reloadData];
-	[tableDelegate table:self rowAdded:[cells count]];
+	if ( [tableDelegate respondsToSelector: @selector(table:rowAdded:)] ) 
+	{
+		[tableDelegate table:self rowAdded:([cells count] - 1)];
+	}
 }
 
 -(void)setEditableStringTableDelegate:(id <EditableStringTableDelegate>)delegateArg

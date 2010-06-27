@@ -23,10 +23,13 @@
  */
 @protocol EditableStringTableDelegate <NSObject>
 
+@optional
+
 -(void)table:(EditableStringTable*)tableView rowAdded:(int)row;
 -(void)table:(EditableStringTable*)tableView rowChanged:(int)row;
 -(void)table:(EditableStringTable*)tableView rowDeleted:(int)row;
 -(void)table:(EditableStringTable*)tableView rowMovedFrom:(int)fromRow to:(int)toRow;
+-(void)table:(EditableStringTable*)tableView rowWasSelected:(int)row;
 
 @end
 
