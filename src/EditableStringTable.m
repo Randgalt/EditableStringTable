@@ -30,6 +30,7 @@
 
 #define MARGIN 10
 #define FONT_MARGIN 20
+#define ACCESSORY_WIDTH 60
 
 -(UITextField*)textField
 {
@@ -41,7 +42,7 @@
 	if ( (self = [super initWithStyle:style reuseIdentifier:str]) != nil )
 	{
 		textField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
-		textField.frame = CGRectMake(MARGIN / 2, MARGIN / 2, self.contentView.frame.size.width - MARGIN, self.contentView.frame.size.height - MARGIN);
+		textField.frame = CGRectMake(MARGIN / 2, MARGIN / 2, self.contentView.frame.size.width - MARGIN - ACCESSORY_WIDTH, self.contentView.frame.size.height - MARGIN);
 		textField.font = [UIFont boldSystemFontOfSize:self.contentView.frame.size.height - FONT_MARGIN];
 		textField.enabled = NO;	
 		textField.returnKeyType = UIReturnKeyDone;
@@ -65,14 +66,29 @@
 -(void)setEditButton
 {
 	UIBarButtonItem		*editButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(editButton)];
-	navigationController.navigationItem.leftBarButtonItem = editButton;
+	if ( sideType == kLeftSide )
+	{
+		navigationController.navigationItem.leftBarButtonItem = editButton;
+	}
+	else 
+	{
+		navigationController.navigationItem.rightBarButtonItem = editButton;
+	}
+
 	[editButton release];
 }
 
 -(void)setDoneButton
 {
 	UIBarButtonItem		*doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneButton)];
-	navigationController.navigationItem.leftBarButtonItem = doneButton;
+	if ( sideType == kLeftSide )
+	{
+		navigationController.navigationItem.leftBarButtonItem = doneButton;
+	}
+	else 
+	{
+		navigationController.navigationItem.rightBarButtonItem = doneButton;
+	}
 	[doneButton release];
 }
 
@@ -180,14 +196,19 @@
 	[super dealloc];
 }
 
--(void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+-(void)deleteItem:(int)row
 {
-	[cells removeObjectAtIndex:indexPath.row];
+	[cells removeObjectAtIndex:row];
 	[self reloadData];
 	if ( [tableDelegate respondsToSelector: @selector(table:rowDeleted:)] ) 
 	{
-		[tableDelegate table:self rowDeleted:indexPath.row];
+		[tableDelegate table:self rowDeleted:row];
 	}
+}
+
+-(void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+	[self deleteItem:indexPath.row];
 }
 
 -(BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
@@ -230,6 +251,11 @@
 	[cell textField].text = [cells objectAtIndex:indexPath.row];
 	[cell textField].textColor = (([self indexPathForSelectedRow] != nil) && ([self indexPathForSelectedRow].row == indexPath.row)) ? [UIColor whiteColor] : [UIColor blackColor];
 	
+	if ( [tableDelegate respondsToSelector: @selector(table:rowWillDisplay:usingCellView:)] ) 
+	{
+		[tableDelegate table:self rowWillDisplay:indexPath.row usingCellView:cell];
+	}
+
 	return cell;
 }
 
@@ -303,6 +329,11 @@
 	}
 }
 
+-(id <EditableStringTableDelegate>)editableStringTableDelegate
+{
+	return tableDelegate;
+}
+
 -(void)setEditableStringTableDelegate:(id <EditableStringTableDelegate>)delegateArg
 {
 	[tableDelegate release];
@@ -314,12 +345,18 @@
 	return [NSArray arrayWithArray:cells];
 }
 
--(void)setViewController:(UIViewController*)controller
+-(void)setViewController:(UIViewController*)controller forSide:(SideTypes)side
 {
 	[navigationController release];
 	navigationController = [controller retain];
+	sideType = side;
 	
 	[self setEditButton];
+}
+
+-(int)count
+{
+	return [cells count];
 }
 
 @end

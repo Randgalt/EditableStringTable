@@ -18,6 +18,12 @@
 
 @class EditableStringTable;
 
+typedef enum
+{
+	kLeftSide,
+	kRightSide
+} SideTypes;
+
 /*
  * Delegate for listening to edit events
  */
@@ -30,6 +36,7 @@
 -(void)table:(EditableStringTable*)tableView rowDeleted:(int)row;
 -(void)table:(EditableStringTable*)tableView rowMovedFrom:(int)fromRow to:(int)toRow;
 -(void)table:(EditableStringTable*)tableView rowWasSelected:(int)row;
+-(void)table:(EditableStringTable*)tableView rowWillDisplay:(int)row usingCellView:(UITableViewCell*)cellView;
 
 @end
 
@@ -39,6 +46,7 @@
 	NSMutableArray		*cells;
 	UITextField			*fieldBeingEdited;
 	UIFont				*font;
+	SideTypes			sideType;
 
 	UIViewController	*navigationController;
 
@@ -53,15 +61,16 @@
 -(id)initWithFrame:(CGRect)frame style:(UITableViewStyle)style;
 
 /*
- * Set the delegate
+ * Get/set the delegate
  */
 -(void)setEditableStringTableDelegate:(id <EditableStringTableDelegate>)delegateArg;
+-(id <EditableStringTableDelegate>)editableStringTableDelegate;
 
 /*
  * Optional: set a view controller that the EditableStringTable will manage. 
  * The EditableStringTable will set/handle the Edit/Done button.
  */
--(void)setViewController:(UIViewController*)controller;
+-(void)setViewController:(UIViewController*)controller forSide:(SideTypes)side;
 
 /*
  * Optional: Change the font used for table cells
@@ -72,6 +81,16 @@
  * Returns the cell values - an array of NSString objects
  */
 -(NSArray*)getCells;
+
+/*
+ * Returns the number of cells
+ */
+-(int)count;
+
+/*
+ * Removes the item at the given row
+ */
+-(void)deleteItem:(int)row;
 
 /*
  * Add a new cell
